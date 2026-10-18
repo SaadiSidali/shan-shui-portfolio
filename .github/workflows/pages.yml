@@ -22,6 +22,28 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type-check and build
+        run: npm run build
+        env:
+          NODE_ENV: production
+      - run: npx playwright install --with-deps chromium
+      - name: Check the production site
+        run: |
+          npm run preview -- --host 127.0.0.1 &
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:4173/shan-shui-portfolio/
+          npm run test:e2e
+      - name: Check development worker lifecycle
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 5173 --strictPort &
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:5173/shan-shui-portfolio/
+          node tests/landscape.cjs
+        env:
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:5173/shan-shui-portfolio/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

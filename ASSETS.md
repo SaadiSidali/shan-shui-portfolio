@@ -15,4 +15,4 @@ Retrieved 18 October 2026. Company logos identify employers and projects; marks 
 - Enfes: https://enfes.com.au/wp-content/uploads/2021/01/download-20.jpeg — official website brand image.
 - AI Mobile: https://cdn.storesdz.com/products/sr7w7muy8j_ailogo.webp — official store logo as used on https://aimobilealgerie.com/.
 
-The landscape retains its original MIT license in `dist/landscape/LICENSE`.
+The landscape retains its original MIT license in `public/landscape/LICENSE`.

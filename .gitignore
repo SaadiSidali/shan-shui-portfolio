@@ -1,6 +1,7 @@
 node_modules/
-.sites-local/
-*.tar.gz
-old-portfolio.*
+dist/
 qa-*.png
 research/
+playwright-report/
+test-results/
+*.tsbuildinfo
