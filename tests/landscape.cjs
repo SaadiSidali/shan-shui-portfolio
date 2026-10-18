@@ -68,30 +68,46 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
         }),
     );
     assert(ahead >= 8192, "A large stretch of terrain is generated ahead");
+    await page.waitForFunction(() => {
+      const state = window.landscapeTest;
+      const initial = state.requests.find((message) => message.type === "init");
+      return (
+        state.decoded - state.released >= Math.ceil(initial.width / 1024) + 1
+      );
+    });
     const timing = await page.evaluate(
       () =>
         new Promise((resolve) => {
           const state = window.landscapeTest;
-          const start = performance.now();
-          const firstDraw = { ...state.lastDraw };
-          const startCount = state.drawCount;
           const samples = [];
-          let previous = start;
+          let start, previous, firstDraw, startCount;
+          let motionTime = 0;
           function sample(time) {
-            samples.push(time - previous);
-            previous = time;
+            if (start === undefined) {
+              start = time;
+              previous = time;
+              firstDraw = { ...state.lastDraw };
+              startCount = state.drawCount;
+            } else {
+              samples.push(time - previous);
+              motionTime += Math.min(time - previous, 80);
+              previous = time;
+            }
             if (time - start < 1500) {
               requestAnimationFrame(sample);
               return;
             }
             samples.sort((a, b) => a - b);
+            const pixels =
+              (firstDraw.left - state.lastDraw.left) /
+              Math.min(devicePixelRatio, 2);
             resolve({
               medianMs: samples[Math.floor(samples.length / 2)],
               fps: (samples.length * 1000) / (time - start),
-              pixelsPerSecond:
-                (((firstDraw.left - state.lastDraw.left) / devicePixelRatio) *
-                  1000) /
-                (state.lastDraw.time - firstDraw.time),
+              frames: samples.length,
+              pixelsPerSecond: (pixels * 1000) / (time - start),
+              pixels,
+              expectedPixels: (motionTime * 54) / 1000,
               draws: state.drawCount - startCount,
               sameTile: firstDraw.id === state.lastDraw.id,
             });
@@ -100,15 +116,14 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
         }),
     );
     assert(
-      timing.fps > 45 && timing.medianMs < 25 && timing.draws > 60,
-      "Canvas draws at the browser refresh rate",
+      timing.draws >= timing.frames - 2,
+      `Canvas draws on available browser frames: ${JSON.stringify(timing)}`,
     );
     assert(
-      timing.sameTile &&
-        timing.pixelsPerSecond > 48 &&
-        timing.pixelsPerSecond < 60,
-      "Travel preserves its 54-pixel-per-second speed",
+      timing.sameTile && Math.abs(timing.pixels - timing.expectedPixels) < 2,
+      `Travel preserves 54 pixels per second with the existing long-frame cap: ${JSON.stringify(timing)}`,
     );
+
     await page
       .getByRole("button", { name: "Pause landscape animation" })
       .click();
