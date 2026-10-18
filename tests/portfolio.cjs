@@ -2,6 +2,15 @@ const { chromium } = require("playwright");
 const assert = require("node:assert/strict");
 const { baseURL, instrumentLandscape } = require("./browser.cjs");
 
+async function waitForOriginalColor(image) {
+  await image
+    .page()
+    .waitForFunction(
+      (element) => getComputedStyle(element).filter === "none",
+      await image.elementHandle(),
+    );
+}
+
 (async () => {
   const browser = await chromium.launch({
     channel: process.env.PLAYWRIGHT_CHANNEL,
@@ -162,7 +171,7 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
       "paused",
       "Hover pauses",
     );
-    await page.waitForTimeout(300);
+    await waitForOriginalColor(freelance.locator(".freelance-logo").first());
     assert.equal(
       await freelance
         .locator(".freelance-logo")
@@ -192,7 +201,7 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
         await logo.evaluate((element) => element.matches(":hover")),
         "Visible repeated logo receives pointer hover",
       );
-      await page.waitForTimeout(300);
+      await waitForOriginalColor(logo.locator("img"));
       assert.equal(
         await logo
           .locator("img")
@@ -234,7 +243,7 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
       "none",
       "Keyboard focus stops automatic travel",
     );
-    await page.waitForTimeout(300);
+    await waitForOriginalColor(freelance.locator(".freelance-logo").last());
     assert.equal(
       await freelance
         .locator(".freelance-logo")
