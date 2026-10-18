@@ -1,0 +1,6 @@
+node_modules/
+.sites-local/
+*.tar.gz
+old-portfolio.*
+qa-*.png
+research/
