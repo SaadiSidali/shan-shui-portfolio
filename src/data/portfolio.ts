@@ -136,8 +136,7 @@ export const experience = [
     date: "JUN 2026 to PRESENT",
     role: "Software Engineer · Algiers, Algeria",
     description:
-      "Transaction services and airtime top-up APIs with Node.js, TypeScript, NestJS, and MongoDB. DT One integration, operational dashboards, and production observability on GKE with Datadog.",
-    current: true,
+      "Transaction and airtime APIs, DT One integration, operational dashboards, and observability on GKE.",
   },
   {
     company: companies.sabil,
@@ -145,8 +144,7 @@ export const experience = [
     date: "APR 2025 to MAR 2026",
     role: "Software Engineer · Algiers, Algeria",
     description:
-      "Backend services in Go and Python, web interfaces in SvelteKit, and AI features and automation pipelines integrated into production workflows.",
-    current: false,
+      "Go and Python services, SvelteKit interfaces, and AI automation in production.",
   },
   {
     company: companies.brandrescue,
@@ -154,8 +152,7 @@ export const experience = [
     date: "MAY 2023 to APR 2025",
     role: "Full-Stack / Cloud Engineer · Adelaide, Australia",
     description:
-      "Next.js application development, AWS infrastructure, automated workflows, and secure deployment patterns.",
-    current: false,
+      "Next.js applications, AWS infrastructure, and automated deployments.",
   },
   {
     company: companies.catering,
@@ -163,8 +160,7 @@ export const experience = [
     date: "MAY 2023 to PRESENT",
     role: "Full-Stack Developer · Adelaide, Australia",
     description:
-      "Frontend, backend, search, and cloud infrastructure. Built dashboards, subscriptions, and event management with Next.js, NestJS, PostgreSQL, Redis, and Elasticsearch.",
-    current: false,
+      "Full-stack catering platform: dashboards, subscriptions, events, search, and cloud infrastructure.",
   },
   {
     company: companies.piassa,
@@ -172,8 +168,7 @@ export const experience = [
     date: "DEC 2022 to MAR 2023",
     role: "Software Developer · Algiers, Algeria",
     description:
-      "A desktop inventory management application for a car parts shop, built with Electron and React.",
-    current: false,
+      "Inventory management for car parts shops, built with Electron and React.",
   },
   {
     company: null,
@@ -181,24 +176,20 @@ export const experience = [
     date: "DEC 2020 to PRESENT",
     role: "Freelance Full-Stack Developer",
     description:
-      "Custom websites, web applications, performance improvements, and search optimization for clients.",
-    current: false,
+      "Websites, applications, performance, and search optimization.",
   },
 ];
 
 export const skills = [
   {
-    number: "01",
     title: "Build the experience",
     lines: ["TypeScript · JavaScript · React", "Next.js · SvelteKit"],
   },
   {
-    number: "02",
     title: "Engineer the system",
     lines: ["Node.js · NestJS · Go · Python", "PostgreSQL · MongoDB · Redis"],
   },
   {
-    number: "03",
     title: "Keep it running",
     lines: [
       "AWS · GCP · Docker · Kubernetes",

@@ -13,7 +13,19 @@ async function instrumentLandscape(page) {
       released: 0,
       drawCount: 0,
       lastDraw: null,
+      lastCraneDraw: null,
+      craneVisible: false,
+      readyEvents: 0,
+      readyAt: 0,
     });
+    document.addEventListener(
+      "landscape-ready",
+      () => {
+        state.readyEvents++;
+        state.readyAt = performance.now();
+      },
+      true,
+    );
     const NativeWorker = window.Worker;
     window.Worker = class extends NativeWorker {
       constructor(url, options) {
@@ -44,14 +56,35 @@ async function instrumentLandscape(page) {
     const draw = CanvasRenderingContext2D.prototype.drawImage;
     const ids = new WeakMap();
     let nextId = 0;
+    const clear = CanvasRenderingContext2D.prototype.clearRect;
+    CanvasRenderingContext2D.prototype.clearRect = function (...args) {
+      state.craneVisible = false;
+      return clear.apply(this, args);
+    };
     CanvasRenderingContext2D.prototype.drawImage = function (
       image,
       left,
       ...args
     ) {
       if (!ids.has(image)) ids.set(image, nextId++);
-      state.drawCount++;
-      state.lastDraw = { id: ids.get(image), left, time: performance.now() };
+      if (image instanceof ImageBitmap) {
+        state.drawCount++;
+        state.lastDraw = { id: ids.get(image), left, time: performance.now() };
+      } else if (
+        image instanceof HTMLImageElement &&
+        image.src.includes("/crane-")
+      ) {
+        state.craneVisible = true;
+        state.lastCraneDraw = {
+          src: image.src,
+          left,
+          top: args[0],
+          width: args[1],
+          height: args[2],
+          terrainLeft: state.lastDraw?.left,
+          time: performance.now(),
+        };
+      }
       return draw.call(this, image, left, ...args);
     };
   });

@@ -15,7 +15,8 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => {
-      if (message.type() === "error") errors.push(message.text());
+      if (message.type() === "error")
+        errors.push(`${message.text()} ${message.location().url}`);
     });
     await page.goto(baseURL, { waitUntil: "load" });
     await page.waitForFunction(
@@ -49,7 +50,9 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
       await page.evaluate(
         () =>
           typeof window.chunkloader === "undefined" &&
-          !document.querySelector("iframe,svg,polyline"),
+          !document.querySelector(
+            "iframe, .landscape svg, .landscape polyline",
+          ),
       ),
       "React owns the native canvas without an iframe or SVG geometry",
     );
@@ -124,23 +127,18 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
       `Travel preserves 54 pixels per second with the existing long-frame cap: ${JSON.stringify(timing)}`,
     );
 
-    await page
-      .getByRole("button", { name: "Pause landscape animation" })
-      .click();
-    const stopped = await page.evaluate(() => window.landscapeTest.drawCount);
-    await page.waitForTimeout(200);
     assert.equal(
-      await page.evaluate(() => window.landscapeTest.drawCount),
-      stopped,
-      "Pause stops drawing",
+      await page.locator("#motion-toggle, .landscape-controls").count(),
+      0,
+      "No landscape controls are rendered",
     );
-    await page
-      .getByRole("button", { name: "Play landscape animation" })
-      .click();
-    await page.waitForTimeout(200);
-    assert(
-      (await page.evaluate(() => window.landscapeTest.drawCount)) > stopped,
-      "Play resumes drawing",
+    await page.waitForFunction(
+      () => !document.querySelector(".site-content").inert,
+    );
+    assert.equal(
+      await page.evaluate(() => window.landscapeTest.readyEvents),
+      1,
+      "The page is revealed by a single first-moving-frame event",
     );
 
     const workerCreated = page.waitForEvent("worker");
@@ -264,16 +262,9 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
       () => window.landscapeTest.lastDraw.left,
     );
     await page.waitForTimeout(200);
-    assert.equal(
-      await page.evaluate(() => window.landscapeTest.lastDraw.left),
-      reduced,
-      "Reduced motion stops landscape travel",
-    );
-    assert.equal(
-      await page
-        .getByRole("button", { name: "Play landscape animation" })
-        .getAttribute("aria-pressed"),
-      "true",
+    assert(
+      (await page.evaluate(() => window.landscapeTest.lastDraw.left)) < reduced,
+      "Landscape stays automatic when the system motion preference changes",
     );
     assert.deepEqual(errors, [], "No browser errors");
     console.log(
@@ -285,7 +276,7 @@ const { baseURL, instrumentLandscape } = require("./browser.cjs");
         terrain,
         cache,
         checks:
-          "native React canvas; worker isolation; buffered generation; pause/play; random seed; bounded bitmaps; resize; disclosures; résumé; reduced motion",
+          "native React canvas; worker isolation; buffered generation; first-frame reveal; always-on motion; random seed; bounded bitmaps; resize; disclosures; résumé; system preference changes",
         errors,
       }),
     );

@@ -13,7 +13,7 @@ export function IndependentWork() {
     >
       <div className="section freelance-heading">
         <h2 id="freelance-heading" className="eyebrow">
-          02 / INDEPENDENT WORK
+          Independent work
         </h2>
         <button
           id="showcase-toggle"

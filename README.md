@@ -1,6 +1,6 @@
 # Sidali Saadi | Portfolio
 
-A React 19 and TypeScript portfolio built with Vite. The existing layout, content, brand assets, and landscape behavior are preserved.
+A React 19 and TypeScript portfolio built with Vite. A quiet, centered introduction leaves room for the generative landscape.
 
 ## Development
 
@@ -22,14 +22,14 @@ The build type-checks the app and generates `dist/`. Generated output is ignored
 
 ## Source
 
-- `src/components/`: page sections, project disclosures, logo showcase, and landscape controls.
+- `src/components/`: page sections, project disclosures, logo showcase, and the landscape.
 - `src/data/portfolio.ts`: employers, experience, independent projects, themes, and skills.
-- `src/hooks/useMotionControl.ts`: shared reduced-motion preference and user pause state.
+- `src/hooks/useMotionControl.ts`: reduced-motion preference and pause state for the independent-work showcase.
 - `src/landscape/renderer.ts`: canvas sizing, smooth travel, visible tile drawing, bitmap cleanup, and lifecycle disposal.
 - `src/landscape/landscape.worker.ts`: seeded generation, buffered terrain, and message validation, with shared message types.
 - `public/`: original images, résumé, and the licensed landscape generator.
 
-React owns the canvas and controls. Terrain generation stays in a dedicated worker. The worker generates 8,192 world units ahead; the renderer caches rasterized tiles and draws only visible terrain at 54 screen pixels per second. Each mount uses a fresh cryptographic seed. Unmounting cancels the animation, terminates the worker, releases bitmaps, and removes listeners.
+React owns the canvas. The landscape runs automatically with no pause control. A small loading screen reveals the content on the first moving frame; generator errors or an eight-second timeout reveal the content as a fallback. The generator script is preloaded before the React app mounts. Terrain generation stays in a dedicated worker. The worker generates 8,192 world units ahead; the renderer caches rasterized tiles and draws only visible terrain at 54 screen pixels per second. Each mount uses a fresh cryptographic seed. Unmounting cancels the animation, terminates the worker, releases bitmaps, and removes listeners.
 
 Lingdong Huang’s [shan-shui-inf](https://github.com/LingDong-/shan-shui-inf) generator retains its MIT license in `public/landscape/LICENSE`. Company marks belong to their owners; see [ASSETS.md](ASSETS.md).
 
@@ -42,7 +42,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The checks cover project links and disclosures, original-color hover across both marquee copies, keyboard navigation, mobile logo placement, reduced motion, worker generation, scrolling speed, bitmap release, and résumé delivery. `PLAYWRIGHT_BASE_URL` can target a different preview; `PLAYWRIGHT_CHANNEL=msedge` uses installed Edge.
+The checks cover project links and disclosures, original-color hover across both marquee copies, keyboard navigation, mobile logo placement, showcase reduced motion, first-frame reveal and failure recovery, worker generation, scrolling speed, bitmap release, and résumé delivery. `PLAYWRIGHT_BASE_URL` can target a different preview; `PLAYWRIGHT_CHANNEL=msedge` uses installed Edge.
 
 ## Deployment
 

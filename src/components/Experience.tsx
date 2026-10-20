@@ -9,20 +9,7 @@ export function Experience() {
       aria-labelledby="experience-heading"
     >
       <div className="section-heading">
-        <p className="eyebrow">04 / ALONG THE WAY</p>
-        <h2 id="experience-heading">
-          Built through
-          <br />
-          <em>experience.</em>
-        </h2>
-        <a
-          className="text-link"
-          href={assetUrl("resume.pdf")}
-          target="_blank"
-          rel="noopener"
-        >
-          Download résumé <span aria-hidden="true">↓</span>
-        </a>
+        <h2 id="experience-heading">Experience.</h2>
       </div>
       <div className="experience-list">
         {experience.map((job) => (
@@ -48,12 +35,6 @@ export function Experience() {
                   </a>
                 ) : (
                   job.name
-                )}
-                {job.current && (
-                  <>
-                    {" "}
-                    <span className="current-label">CURRENT</span>
-                  </>
                 )}
               </h3>
               <p className="job-role">{job.role}</p>

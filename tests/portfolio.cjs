@@ -24,9 +24,13 @@ async function waitForOriginalColor(image) {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => {
-      if (message.type() === "error") errors.push(message.text());
+      if (message.type() === "error")
+        errors.push(`${message.text()} ${message.location().url}`);
     });
     await page.goto(baseURL, { waitUntil: "load" });
+    await page.waitForFunction(
+      () => !document.querySelector(".site-content").inert,
+    );
     await page.evaluate(() =>
       document
         .querySelectorAll("img")
@@ -71,8 +75,21 @@ async function waitForOriginalColor(image) {
       1440,
     );
     const stores = page.locator(".project").nth(1);
-    assert((await stores.innerText()).includes("Scaling is the core purpose"));
-    assert.equal(await stores.locator(".theme-shot").count(), 7);
+    assert((await stores.innerText()).toLowerCase().includes("built to scale"));
+    for (const link of await stores.locator("a").all()) {
+      assert.equal(
+        await link.getAttribute("href"),
+        "https://app.storesdz.com/",
+        "StoresDZ preview and visit link point to the live product",
+      );
+    }
+    assert.equal(
+      await stores
+        .locator(".website-preview img")
+        .evaluate((image) => image.naturalWidth),
+      1440,
+      "StoresDZ uses the captured live landing page",
+    );
     const freelance = page.locator(".marquee-group").first();
     assert.equal(await freelance.locator(".freelance-card").count(), 6);
     assert.equal(
@@ -264,7 +281,7 @@ async function waitForOriginalColor(image) {
     await page.waitForTimeout(200);
     await page.screenshot({ path: "qa-catering.png" });
     await stores.scrollIntoViewIfNeeded();
-    await page.screenshot({ path: "qa-themes.png" });
+    await page.screenshot({ path: "qa-storesdz.png" });
     await page.locator("#freelance").scrollIntoViewIfNeeded();
     await page.screenshot({ path: "qa-freelance.png" });
     await page.locator(".company-strip").scrollIntoViewIfNeeded();
@@ -377,19 +394,19 @@ async function waitForOriginalColor(image) {
       () => window.landscapeTest.lastDraw.left,
     );
     await page.waitForTimeout(150);
-    assert.equal(
-      await page.evaluate(() => window.landscapeTest.lastDraw.left),
-      landscapeX,
-      "Background still respects reduced motion",
+    assert(
+      (await page.evaluate(() => window.landscapeTest.lastDraw.left)) <
+        landscapeX,
+      "Landscape remains automatic without a pause control",
     );
     assert.deepEqual(errors, [], "No browser errors or broken images");
     console.log(
       JSON.stringify({
         result: "PASS",
-        themes: 7,
+        storesdzPreviews: 1,
         freelanceProjects: 6,
         checks:
-          "Feedwell preview and links; scaling copy; actual theme images; all freelance links; loop copy hover and links; clone accessibility; marquee movement, pause, resume, hover, keyboard and reduced motion; equal mobile team placement at 320-768px; background movement below hero",
+          "Feedwell preview and links; StoresDZ live landing preview and links; scaling copy; all freelance links; loop copy hover and links; clone accessibility; marquee movement, pause, resume, hover, keyboard and reduced motion; equal mobile team placement at 320-768px; background movement below hero",
         errors,
       }),
     );
